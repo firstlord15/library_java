@@ -2,7 +2,7 @@ package org.ratmir.project.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ratmir.project.models.Author;
+import org.ratmir.project.enums.ModerationStatus;
 import org.ratmir.project.models.Book;
 import org.ratmir.project.repository.BookRepository;
 import org.springframework.stereotype.Service;
@@ -14,30 +14,27 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BookService {
-    private BookRepository repository;
+    private final BookRepository repository;
 
     public Book addBook(Book book) {
+        book.setStatus(ModerationStatus.PENDING);   // всегда PENDING при создании
         log.info("Add new Book: {}", book.getTitle());
-        Book newBook = repository.save(book);
-
-        return newBook;
+        return repository.save(book);
     }
 
     public Book updateBook(UUID id, Book newBook) {
         Book book = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Book not found: " + id));
 
         book.setTitle(newBook.getTitle());
-        book.setDescription(newBook.getDescription() == null ? "" : newBook.getDescription());
+        book.setDescription(newBook.getDescription());
         book.setAuthors(newBook.getAuthors());
+        book.setGenres(newBook.getGenres());
         book.setRating(newBook.getRating());
-        book.setPrice(newBook.getPrice());
         book.setPhoto(newBook.getPhoto());
 
         log.info("UPDATE Book: {}", id);
-        Book updatedBook = repository.save(book);
-
-        return updatedBook;
+        return repository.save(book);
     }
 
     public void deleteBook(UUID id) {
@@ -45,11 +42,13 @@ public class BookService {
         repository.deleteById(id);
     }
 
-    public void deleteBook(Book book) { // TODO: проверить возможность убрать повторения
-        log.info("DELETE Book: {}", book.getId());
-        repository.deleteById(book.getId());
+    // Публичный каталог — только одобренные книги
+    public List<Book> getAllPublic() {
+        log.info("GET All approved Books");
+        return repository.findByStatus(ModerationStatus.APPROVED);
     }
 
+    // Для админа/автора — все книги
     public List<Book> getAll() {
         log.info("GET All Books");
         return repository.findAll();
@@ -57,23 +56,12 @@ public class BookService {
 
     public Book getById(UUID id) {
         log.info("GET Book with id {}", id);
-        Book book = repository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-
-        return book;
-    }
-
-    public List<Book> getByAuthor(Author author) {
-        log.info("GET Book with author {}", author.getName());
-        List<Book> books = repository.findByAuthors(List.of(author));
-
-        return books;
     }
 
     public List<Book> getByTitle(String title) {
         log.info("GET Book with title {}", title);
-        List<Book> books = repository.findByTitle(title);
-
-        return books;
+        return repository.findByTitleContainingIgnoreCase(title);
     }
 }

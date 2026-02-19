@@ -1,18 +1,26 @@
 package org.ratmir.project.models;
 
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
-@RequiredArgsConstructor
+@Entity
+@Table(name = "authors")
+@NoArgsConstructor
 public class Author {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String surname;
-    private String lastName;
-    private String email;
-    private String phone;
+
+    @Column(length = 5000)
     private String bio;
 }

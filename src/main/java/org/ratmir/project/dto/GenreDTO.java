@@ -1,14 +1,13 @@
 package org.ratmir.project.dto;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
-@RequiredArgsConstructor
-public class AuthorShortDTO {
+@NoArgsConstructor
+public class GenreDTO {
     private UUID id;
     private String name;
-    private String surname;
 }
