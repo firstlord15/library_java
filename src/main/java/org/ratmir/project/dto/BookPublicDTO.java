@@ -2,8 +2,6 @@ package org.ratmir.project.dto;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.ratmir.project.models.Author;
-import org.ratmir.project.models.Genre;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,8 +17,8 @@ public class BookPublicDTO {
     private String description;
     private double rating;
     private String photoUrl;
-    private List<Genre> genres;
-    private List<Author> authors;
+    private List<GenreDTO> genres;
+    private List<AuthorShortDTO> authors;
 
     // Publish info
     private LocalDate publishingDate;

@@ -14,7 +14,6 @@ import java.util.UUID;
 @Data
 @Slf4j
 @Entity
-@NoArgsConstructor
 @Table(name = "books")
 public class Book {
     @Id
