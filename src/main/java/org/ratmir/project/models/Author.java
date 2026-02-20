@@ -21,6 +21,13 @@ public class Author {
     @Column(nullable = false)
     private String surname;
 
+    @Column(nullable = true)
+    private String patronymic;
+
     @Column(length = 5000)
     private String bio;
+
+    public String getFullName() {
+        return name + " " + surname + " " + patronymic;
+    }
 }
