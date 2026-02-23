@@ -28,6 +28,10 @@ public class Author {
     private String bio;
 
     public String getFullName() {
-        return name + " " + surname + " " + patronymic;
+        if (patronymic != null && !patronymic.isBlank()) {
+            return name + " " + surname + " " + patronymic;
+        }
+
+        return name + " " + surname;
     }
 }
