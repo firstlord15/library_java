@@ -14,6 +14,5 @@ public interface ModerationRepository extends JpaRepository<ModerationRecord, UU
     List<ModerationRecord> findByBookId(UUID bookId);
     List<ModerationRecord> findByModeratorId(UUID moderatorId);
 
-    List<ModerationRecord> findByStatus(ModerationStatus status);
     Optional<ModerationRecord> findTopByBookIdOrderByCreatedAtDesc(UUID bookId);
 }

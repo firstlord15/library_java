@@ -19,9 +19,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ModerationService {
-    private BookRepository bookRepository;
-    private UserRepository userRepository;
-    private ModerationRepository repository;
+    private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final ModerationRepository repository;
 
     public ModerationRecord approveBook(UUID moderatorId, UUID bookId, String comment) {
         Book book = getBookOrThrow(bookId);
@@ -75,9 +75,9 @@ public class ModerationService {
                 .orElseThrow(() -> new RuntimeException("No moderation records for book: " + bookId));
     }
 
-    public List<ModerationRecord> getPendingBooks() {
+    public List<Book> getPendingBooks() {
         log.info("Get Pending Books");
-        return repository.findByStatus(ModerationStatus.PENDING);
+        return bookRepository.findByStatus(ModerationStatus.PENDING);
     }
 
     private Book getBookOrThrow(UUID bookId) {
