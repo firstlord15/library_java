@@ -7,6 +7,7 @@ import org.ratmir.project.models.Book;
 import org.ratmir.project.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,8 +31,8 @@ public class BookService {
         book.setDescription(newBook.getDescription());
         book.setAuthors(newBook.getAuthors());
         book.setGenres(newBook.getGenres());
-        book.setRating(newBook.getRating());
         book.setPhoto(newBook.getPhoto());
+        book.setUpdatedAt(LocalDateTime.now());
 
         log.info("UPDATE Book: {}", id);
         return repository.save(book);
