@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ratmir.project.enums.ModerationStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,12 +83,18 @@ public class Book {
         this.origin = origin;
     }
 
-    public Book(UUID id, String isbn, String title, String description, double rating, String photo, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    public Book(UUID id, String isbn, String title, String description, String photo, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
         this.id = id;
         this.isbn = isbn;
         this.title = title;
         this.description = description;
-        this.rating = rating;
+        this.rating = 0;
         this.photo = photo;
         this.genres = genres;
         this.authors = authors;
@@ -95,14 +102,16 @@ public class Book {
         this.inventoryNumber = inventoryNumber;
         this.status = ModerationStatus.PENDING;
         this.origin = origin;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public Book(String isbn, String title, String description, double rating, String photo, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
+    public Book(String isbn, String title, String description, String photo, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
         this.id = UUID.randomUUID();
         this.isbn = isbn;
         this.title = title;
         this.description = description;
-        this.rating = rating;
+        this.rating = 0;
         this.photo = photo;
         this.genres = genres;
         this.authors = authors;
@@ -110,5 +119,7 @@ public class Book {
         this.inventoryNumber = inventoryNumber;
         this.status = ModerationStatus.PENDING;
         this.origin = origin;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
