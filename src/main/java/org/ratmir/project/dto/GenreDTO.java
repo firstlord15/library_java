@@ -10,4 +10,9 @@ import java.util.UUID;
 public class GenreDTO {
     private UUID id;
     private String name;
+
+    public GenreDTO(UUID id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

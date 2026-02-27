@@ -22,4 +22,15 @@ public class BookPublicDTO {
 
     // Publish info
     private LocalDate publishingDate;
+
+    public BookPublicDTO(UUID id, String title, String description, double rating, String photo, List<GenreDTO> genres, List<AuthorShortDTO> authors, LocalDate publishingDate) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.rating = rating;
+        this.photoUrl = photo;
+        this.genres = genres;
+        this.authors = authors;
+        this.publishingDate = publishingDate;
+    }
 }

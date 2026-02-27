@@ -19,8 +19,23 @@ public class BookAuthorDTO {
     private String photoUrl;
     private LocalDate publicationDate;
     private String inventoryNumber;
-    private List<AuthorShortDTO> authors;
     private List<GenreDTO> genres;
+    private List<AuthorShortDTO> authors;
     private UUID originId;
     private String originUsername;
+
+    public BookAuthorDTO(UUID id, String title, String description, ModerationStatus status, double rating, String photoUrl, LocalDate publicationDate, String inventoryNumber, List<GenreDTO> genres, List<AuthorShortDTO> authors, UUID originId, String originUsername) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.rating = rating;
+        this.photoUrl = photoUrl;
+        this.publicationDate = publicationDate;
+        this.inventoryNumber = inventoryNumber;
+        this.genres = genres;
+        this.authors = authors;
+        this.originId = originId;
+        this.originUsername = originUsername;
+    }
 }
