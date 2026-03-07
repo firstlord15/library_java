@@ -1,13 +1,21 @@
 package org.ratmir.project.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ratmir.project.dto.BookAuthorDTO;
+import org.ratmir.project.dto.BookPublicDTO;
+import org.ratmir.project.dto.CreateBookDTO;
+import org.ratmir.project.dto.UpdateBookDTO;
 import org.ratmir.project.enums.ModerationStatus;
+import org.ratmir.project.mapper.BookMapper;
 import org.ratmir.project.models.Book;
+import org.ratmir.project.repository.AuthorRepository;
 import org.ratmir.project.repository.BookRepository;
+import org.ratmir.project.repository.GenreRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,54 +23,110 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BookService {
+    private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
     private final BookRepository repository;
+    private final BookMapper mapper;
 
-    public Book addBook(Book book) {
+    @Transactional
+    public BookPublicDTO addBook(CreateBookDTO dto) {
+        Book book = mapper.fromCreateDTO(dto);
         book.setStatus(ModerationStatus.PENDING);   // всегда PENDING при создании
+        book.setRating(0.0);
+
+        // Устанавливаем связи
+        if (dto.getAuthorIds() != null) {
+            book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
+        }
+        if (dto.getGenreIds() != null) {
+            book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
+        }
+
         log.info("Add new Book: {}", book.getTitle());
-        return repository.save(book);
+        book = repository.save(book);
+
+        return mapper.toBookPublicDTO(book);
     }
 
-    public Book updateBook(UUID id, Book newBook) {
+    @Transactional
+    public BookPublicDTO updateBook(UUID id, UpdateBookDTO dto) {
         Book book = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found: " + id));
 
-        book.setTitle(newBook.getTitle());
-        book.setDescription(newBook.getDescription());
-        book.setAuthors(newBook.getAuthors());
-        book.setGenres(newBook.getGenres());
-        book.setPhoto(newBook.getPhoto());
-        book.setUpdatedAt(LocalDateTime.now());
+        if (dto.getIsbn() != null && !dto.getIsbn().equals(book.getIsbn())) {
+            log.warn("ISBN changed for book {}: {} -> {}",
+                    id, book.getIsbn(), dto.getIsbn());
+
+            if (repository.existsByIsbn(dto.getIsbn())) {
+                throw new IllegalArgumentException(
+                        "Book with this ISBN already exists"
+                );
+            }
+        }
+
+        // Обновляем простые поля
+        mapper.updateFromDTO(dto, book);
+
+        // Обновляем связи
+        if (dto.getAuthorIds() != null) {
+            book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
+        }
+        if  (dto.getGenreIds() != null) {
+            book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
+        }
 
         log.info("UPDATE Book: {}", id);
-        return repository.save(book);
+        book = repository.save(book);
+
+        return mapper.toBookPublicDTO(book);
     }
 
+    @Transactional
     public void deleteBook(UUID id) {
         log.info("DELETE Book: {}", id);
         repository.deleteById(id);
     }
 
     // Публичный каталог — только одобренные книги
-    public List<Book> getAllPublic() {
+    public List<BookPublicDTO> getAllPublic() {
         log.info("GET All approved Books");
-        return repository.findByStatus(ModerationStatus.APPROVED);
+        return repository.findByStatus(ModerationStatus.APPROVED)
+                .stream()
+                .map(mapper::toBookPublicDTO)
+                .toList();
     }
 
     // Для админа/автора — все книги
-    public List<Book> getAll() {
+    public List<BookAuthorDTO> getAll() {
         log.info("GET All Books");
-        return repository.findAll();
+
+        return repository.findAll()
+                .stream()
+                .map(mapper::toBookAuthorDTO)
+                .toList();
     }
 
-    public Book getById(UUID id) {
-        log.info("GET Book with id {}", id);
-        return repository.findById(id)
+    public BookPublicDTO getByIdPublic(UUID id) {
+        log.info("GET Public Book with id {}", id);
+        Book book = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+
+        return mapper.toBookPublicDTO(book);
     }
 
-    public List<Book> getByTitle(String title) {
+    public BookAuthorDTO getByIdAuthor(UUID id) {
+        log.info("GET Author Book with id {}", id);
+        Book book = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+
+        return mapper.toBookAuthorDTO(book);
+    }
+
+    public List<BookPublicDTO> getByTitle(String title) {
         log.info("GET Book with title {}", title);
-        return repository.findByTitleContainingIgnoreCase(title);
+        return repository.findByTitleContainingIgnoreCase(title)
+                .stream()
+                .map(mapper::toBookPublicDTO)
+                .toList();
     }
 }

@@ -1,5 +1,6 @@
 package org.ratmir.project.repository;
 
+import jakarta.validation.constraints.Pattern;
 import org.ratmir.project.enums.ModerationStatus;
 import org.ratmir.project.models.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,6 @@ import java.util.UUID;
 public interface BookRepository extends JpaRepository<Book, UUID> {
     List<Book> findByStatus(ModerationStatus status);
     List<Book> findByTitleContainingIgnoreCase(String title);
+
+    boolean existsByIsbn(@Pattern(regexp = "^(?:\\d{9}[\\dX]|\\d{13})$") String isbn);
 }
