@@ -68,6 +68,12 @@ public class Book {
     @JoinColumn(name = "origin_user_id")
     private User origin;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     public Book(UUID id, String isbn, String title, String description, double rating, String photoUrl, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, ModerationStatus status, User origin) {
         this.id = id;
         this.isbn = isbn;
@@ -82,12 +88,6 @@ public class Book {
         this.status = status;
         this.origin = origin;
     }
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 
     public Book(UUID id, String isbn, String title, String description, String photoUrl, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
         this.id = id;
