@@ -16,8 +16,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
+@RestController
 @RequiredArgsConstructor
-@RestController("/api/books")
+@RequestMapping("/api/books")
 public class BookController {
     private final BookService bookService;
 
@@ -72,7 +73,7 @@ public class BookController {
         return ResponseEntity.ok(updateBook);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable UUID id) {
         log.info("Deleting book: {}", id);
         bookService.deleteBook(id);
