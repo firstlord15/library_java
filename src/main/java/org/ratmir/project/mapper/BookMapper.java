@@ -29,20 +29,25 @@ public interface BookMapper {
 
     // Для админки/автора (со статусом модерации)
     default BookAuthorDTO toBookAuthorDTO(Book book) {
-        return new BookAuthorDTO(
-                book.getId(),
-                book.getTitle(),
-                book.getDescription(),
-                book.getStatus(),
-                book.getRating(),
-                book.getPhotoUrl(),
-                book.getPublishingDate(),
-                book.getInventoryNumber(),
-                toGenreDTOList(book.getGenres()),
-                toAuthorDTOList((book.getAuthors())),
-                book.getOrigin().getId(),
-                book.getOrigin().getUsername()
-        );
+        BookAuthorDTO dto = new BookAuthorDTO();
+
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setDescription(book.getDescription());
+        dto.setStatus(book.getStatus());
+        dto.setRating(book.getRating());
+        dto.setPhotoUrl(book.getPhotoUrl());
+        dto.setPublicationDate(book.getPublishingDate());
+        dto.setInventoryNumber(book.getInventoryNumber());
+        dto.setGenres(toGenreDTOList(book.getGenres()));
+        dto.setAuthors(toAuthorDTOList(book.getAuthors()));
+
+        if (book.getOrigin() != null) {
+            dto.setOriginId(book.getOrigin().getId());
+            dto.setOriginUsername(book.getOrigin().getUsername());
+        }
+
+        return dto;
     }
 
     default List<BookPublicDTO>  toBookPublicDTOList(List<Book> books) {
