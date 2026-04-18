@@ -21,7 +21,7 @@ public class UpdateBookDTO {
     private String photoUrl;
 
     @PastOrPresent(message = "Date cannot be in the future")
-    private LocalDate publishDate;
+    private LocalDate publishingDate;
 
     private List<UUID> authorIds;
     private List<UUID> genreIds;
