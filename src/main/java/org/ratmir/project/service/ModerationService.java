@@ -1,8 +1,10 @@
 package org.ratmir.project.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ratmir.project.enums.ModerationStatus;
+import org.ratmir.project.exception.ResourceNotFoundException;
 import org.ratmir.project.models.Book;
 import org.ratmir.project.models.ModerationRecord;
 import org.ratmir.project.models.User;
@@ -23,6 +25,7 @@ public class ModerationService {
     private final UserRepository userRepository;
     private final ModerationRepository repository;
 
+    @Transactional
     public ModerationRecord approveBook(UUID moderatorId, UUID bookId, String comment) {
         Book book = getBookOrThrow(bookId);
         User moderator = getModeratorOrThrow(moderatorId);
@@ -41,6 +44,7 @@ public class ModerationService {
         return repository.save(moderationRecord);
     }
 
+    @Transactional
     public ModerationRecord rejectBook(UUID moderatorId, UUID bookId, String comment) {
         Book book = getBookOrThrow(bookId);
         User moderator = getModeratorOrThrow(moderatorId);
@@ -72,7 +76,7 @@ public class ModerationService {
     public ModerationRecord getLastRecordByBook(UUID bookId) {
         log.info("Get Last Record By Book: {}", bookId);
         return repository.findTopByBookIdOrderByCreatedAtDesc(bookId)
-                .orElseThrow(() -> new RuntimeException("No moderation records for book: " + bookId));
+                .orElseThrow(() -> new ResourceNotFoundException("No moderation records for book: " + bookId));
     }
 
     public List<Book> getPendingBooks() {
@@ -82,11 +86,11 @@ public class ModerationService {
 
     private Book getBookOrThrow(UUID bookId) {
         return bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found: " + bookId));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + bookId));
     }
 
     private User getModeratorOrThrow(UUID moderatorId) {
         return userRepository.findById(moderatorId)
-                .orElseThrow(() -> new RuntimeException("Moderator not found: " + moderatorId));
+                .orElseThrow(() -> new ResourceNotFoundException("Moderator not found: " + moderatorId));
     }
 }

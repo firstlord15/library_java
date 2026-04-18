@@ -8,14 +8,19 @@ import org.ratmir.project.dto.BookPublicDTO;
 import org.ratmir.project.dto.CreateBookDTO;
 import org.ratmir.project.dto.UpdateBookDTO;
 import org.ratmir.project.enums.ModerationStatus;
+import org.ratmir.project.enums.Role;
+import org.ratmir.project.exception.ResourceNotFoundException;
 import org.ratmir.project.mapper.BookMapper;
 import org.ratmir.project.models.Book;
+import org.ratmir.project.models.User;
 import org.ratmir.project.repository.AuthorRepository;
 import org.ratmir.project.repository.BookRepository;
 import org.ratmir.project.repository.GenreRepository;
-import org.springframework.lang.NonNull;
+import org.ratmir.project.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,12 +32,18 @@ public class BookService {
     private final GenreRepository genreRepository;
     private final BookRepository repository;
     private final BookMapper mapper;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public BookPublicDTO addBook(CreateBookDTO dto) {
         Book book = mapper.fromCreateDTO(dto);
         book.setStatus(ModerationStatus.PENDING);   // всегда PENDING при создании
         book.setRating(0.0);
+        book.setOrigin(getCurrentUser());
+        book.setInventoryNumber(generateInventoryNumber());
+        book.setCreatedAt(LocalDateTime.now());
+        book.setUpdatedAt(LocalDateTime.now());
 
         // Устанавливаем связи
         if (dto.getAuthorIds() != null) {
@@ -51,7 +62,7 @@ public class BookService {
     @Transactional
     public BookPublicDTO updateBook(UUID id, UpdateBookDTO dto) {
         Book book = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
 
         if (dto.getIsbn() != null && !dto.getIsbn().equals(book.getIsbn())) {
             log.warn("ISBN changed for book {}: {} -> {}",
@@ -109,7 +120,7 @@ public class BookService {
     public BookPublicDTO getByIdPublic(UUID id) {
         log.info("GET Public Book with id {}", id);
         Book book = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
 
         return mapper.toBookPublicDTO(book);
     }
@@ -117,7 +128,7 @@ public class BookService {
     public BookAuthorDTO getByIdAuthor(UUID id) {
         log.info("GET Author Book with id {}", id);
         Book book = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
 
         return mapper.toBookAuthorDTO(book);
     }
@@ -128,5 +139,29 @@ public class BookService {
                 .stream()
                 .map(mapper::toBookPublicDTO)
                 .toList();
+    }
+
+    private User getCurrentUser() {
+        // 🔧 ВРЕМЕННАЯ ЗАГЛУШКА для тестирования
+        // TODO: заменить на SecurityContextHolder.getContext().getAuthentication()
+        //       когда добавим JWT авторизацию
+
+        log.warn("Using test user stub - replace with real authentication!");
+
+        return userRepository.findByUsername("test_user")
+                .orElseGet(() -> {
+                    log.info("Creating test user for development");
+                    User testUser = new User();
+                    testUser.setUsername("test_user");
+                    testUser.setPasswordHash(passwordEncoder.encode("password"));
+                    testUser.setEmail("test@test.com");
+                    testUser.setRole(Role.USER);
+                    return userRepository.save(testUser);
+                });
+    }
+
+    private String generateInventoryNumber() {
+        long count = repository.count() + 1;
+        return String.format("LIB-%d-%05d", LocalDateTime.now().getYear(), count);
     }
 }

@@ -2,6 +2,7 @@ package org.ratmir.project.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ratmir.project.exception.ResourceNotFoundException;
 import org.ratmir.project.models.Author;
 import org.ratmir.project.repository.AuthorRepository;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class AuthorService {
     public Author getById(UUID id) {
         log.info("GET Author with id {}", id);
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Author not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
     }
 
     public List<Author> getAll() {
@@ -38,7 +39,7 @@ public class AuthorService {
 
     public  Author updateAuthor(UUID id, Author author) {
         Author currentAuthor = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Author not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
 
         currentAuthor.setBio(author.getBio());
         currentAuthor.setName(author.getName());
