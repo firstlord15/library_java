@@ -74,52 +74,22 @@ public class Book {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public Book(UUID id, String isbn, String title, String description, double rating, String photoUrl, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, ModerationStatus status, User origin) {
-        this.id = id;
-        this.isbn = isbn;
-        this.title = title;
-        this.description = description;
-        this.rating = rating;
-        this.photoUrl = photoUrl;
-        this.genres = genres;
-        this.authors = authors;
-        this.publishingDate = publishingDate;
-        this.inventoryNumber = inventoryNumber;
-        this.status = status;
-        this.origin = origin;
+    // lifecycle hooks
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = ModerationStatus.PENDING;
+        }
     }
 
-    public Book(UUID id, String isbn, String title, String description, String photoUrl, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
-        this.id = id;
-        this.isbn = isbn;
-        this.title = title;
-        this.description = description;
-        this.rating = 0;
-        this.photoUrl = photoUrl;
-        this.genres = genres;
-        this.authors = authors;
-        this.publishingDate = publishingDate;
-        this.inventoryNumber = inventoryNumber;
-        this.status = ModerationStatus.PENDING;
-        this.origin = origin;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public Book(String isbn, String title, String description, String photoUrl, List<Genre> genres, List<Author> authors, LocalDate publishingDate, String inventoryNumber, User origin) {
-        this.id = UUID.randomUUID();
-        this.isbn = isbn;
-        this.title = title;
-        this.description = description;
-        this.rating = 0;
-        this.photoUrl = photoUrl;
-        this.genres = genres;
-        this.authors = authors;
-        this.publishingDate = publishingDate;
-        this.inventoryNumber = inventoryNumber;
-        this.status = ModerationStatus.PENDING;
-        this.origin = origin;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
