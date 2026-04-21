@@ -1,8 +1,7 @@
-package org.ratmir.project.dto;
+package org.ratmir.project.dto.author;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ratmir.project.models.Author;
 
 import java.util.UUID;
 
