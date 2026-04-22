@@ -1,8 +1,13 @@
 package org.ratmir.project.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ratmir.project.dto.author.AuthorDetailDTO;
+import org.ratmir.project.dto.author.CreateAuthorDTO;
+import org.ratmir.project.dto.author.UpdateAuthorDTO;
 import org.ratmir.project.exception.ResourceNotFoundException;
+import org.ratmir.project.mapper.AuthorMapper;
 import org.ratmir.project.models.Author;
 import org.ratmir.project.repository.AuthorRepository;
 import org.springframework.stereotype.Service;
@@ -15,21 +20,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository repository;
+    private final AuthorMapper mapper;
 
-    public Author getById(UUID id) {
+    public AuthorDetailDTO getById(UUID id) {
         log.info("GET Author with id {}", id);
-        return repository.findById(id)
+        Author author = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
+        return mapper.toDTO(author);
     }
 
-    public List<Author> getAll() {
+    public List<AuthorDetailDTO> getAll() {
         log.info("GET All Authors");
-        return repository.findAll();
-    }
 
-    public Author createAuthor(Author author) {
-        log.info("Create Author {}", author.getFullName());
-        return repository.save(author);
+        return repository.findAll()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     public void deleteAuthor(UUID id) {
@@ -37,16 +43,22 @@ public class AuthorService {
         repository.deleteById(id);
     }
 
-    public  Author updateAuthor(UUID id, Author author) {
-        Author currentAuthor = repository.findById(id)
+    @Transactional
+    public AuthorDetailDTO createAuthor(CreateAuthorDTO dto) {
+        log.info("Create Author {}", dto.getName());
+        Author author = mapper.fromCreatedDTO(dto);
+        Author saved = repository.save(author);
+        return mapper.toDTO(saved);
+    }
+
+    @Transactional
+    public AuthorDetailDTO updateAuthor(UUID id, UpdateAuthorDTO dto) {
+        Author author = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
 
-        currentAuthor.setBio(author.getBio());
-        currentAuthor.setName(author.getName());
-        currentAuthor.setSurname(author.getSurname());
-        currentAuthor.setPatronymic(author.getPatronymic());
-
-        log.info("Update Author {}", author.getId());
-        return repository.save(currentAuthor);
+        log.info("Update Author {}", author.getName());
+        mapper.updateFromDTO(dto, author);
+        Author updated = repository.save(author);
+        return mapper.toDTO(updated);
     }
 }
