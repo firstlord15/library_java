@@ -1,7 +1,9 @@
-package org.ratmir.project.dto;
+package org.ratmir.project.dto.book;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.ratmir.project.dto.author.AuthorShortDTO;
+import org.ratmir.project.dto.genre.GenreDTO;
 
 import java.time.LocalDate;
 import java.util.List;

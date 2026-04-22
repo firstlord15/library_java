@@ -1,17 +1,15 @@
-package org.ratmir.project.dto;
+package org.ratmir.project.dto.book;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-public class UpdateBookDTO {
-    @NotBlank
+public class CreateBookDTO {
+    @NotBlank(message = "Title is required")
     @Size(min = 1, max = 1500)
     private String title;
 
@@ -23,9 +21,12 @@ public class UpdateBookDTO {
     @PastOrPresent(message = "Date cannot be in the future")
     private LocalDate publishingDate;
 
-    private List<UUID> authorIds;
+    @NotEmpty(message = "At least one genre is required")
     private List<UUID> genreIds;
 
-    @Pattern(regexp = "^(?:\\d{9}[\\dX]|\\d{13})$")
+    @NotEmpty(message = "At least one author is required")
+    private List<UUID> authorIds;
+
+    @Pattern(regexp = "^(97[89])?[0-9]{9}[0-9X]$", message = "Invalid ISBN format (10 or 13 digits)")
     private String isbn;
 }

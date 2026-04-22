@@ -1,7 +1,9 @@
-package org.ratmir.project.dto;
+package org.ratmir.project.dto.book;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ratmir.project.dto.author.AuthorShortDTO;
+import org.ratmir.project.dto.genre.GenreDTO;
 import org.ratmir.project.enums.ModerationStatus;
 
 import java.time.LocalDate;
@@ -10,7 +12,7 @@ import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-public class BookAuthorDTO {
+public class BookDetailDTO {
     private UUID id;
     private String title;
     private String description;
@@ -24,7 +26,7 @@ public class BookAuthorDTO {
     private UUID originId;
     private String originUsername;
 
-    public BookAuthorDTO(UUID id, String title, String description, ModerationStatus status, double rating, String photoUrl, LocalDate publicationDate, String inventoryNumber, List<GenreDTO> genres, List<AuthorShortDTO> authors, UUID originId, String originUsername) {
+    public BookDetailDTO(UUID id, String title, String description, ModerationStatus status, double rating, String photoUrl, LocalDate publicationDate, String inventoryNumber, List<GenreDTO> genres, List<AuthorShortDTO> authors, UUID originId, String originUsername) {
         this.id = id;
         this.title = title;
         this.description = description;
