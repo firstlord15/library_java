@@ -3,10 +3,10 @@ package org.ratmir.project.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ratmir.project.dto.BookAuthorDTO;
-import org.ratmir.project.dto.BookPublicDTO;
-import org.ratmir.project.dto.CreateBookDTO;
-import org.ratmir.project.dto.UpdateBookDTO;
+import org.ratmir.project.dto.book.BookDetailDTO;
+import org.ratmir.project.dto.book.BookPublicDTO;
+import org.ratmir.project.dto.book.CreateBookDTO;
+import org.ratmir.project.dto.book.UpdateBookDTO;
 import org.ratmir.project.enums.ModerationStatus;
 import org.ratmir.project.enums.Role;
 import org.ratmir.project.exception.ResourceNotFoundException;
@@ -108,7 +108,7 @@ public class BookService {
     }
 
     // Для админа/автора — все книги
-    public List<BookAuthorDTO> getAll() {
+    public List<BookDetailDTO> getAll() {
         log.info("GET All Books");
 
         return repository.findAll()
@@ -125,7 +125,7 @@ public class BookService {
         return mapper.toBookPublicDTO(book);
     }
 
-    public BookAuthorDTO getByIdAuthor(UUID id) {
+    public BookDetailDTO getByIdAuthor(UUID id) {
         log.info("GET Author Book with id {}", id);
         Book book = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
