@@ -4,7 +4,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.ratmir.project.dto.*;
+import org.ratmir.project.dto.author.AuthorShortDTO;
+import org.ratmir.project.dto.book.BookDetailDTO;
+import org.ratmir.project.dto.book.BookPublicDTO;
+import org.ratmir.project.dto.book.CreateBookDTO;
+import org.ratmir.project.dto.book.UpdateBookDTO;
+import org.ratmir.project.dto.genre.GenreDTO;
 import org.ratmir.project.models.Author;
 import org.ratmir.project.models.Book;
 import org.ratmir.project.models.Genre;
@@ -28,8 +33,8 @@ public interface BookMapper {
     }
 
     // Для админки/автора (со статусом модерации)
-    default BookAuthorDTO toBookAuthorDTO(Book book) {
-        BookAuthorDTO dto = new BookAuthorDTO();
+    default BookDetailDTO toBookAuthorDTO(Book book) {
+        BookDetailDTO dto = new BookDetailDTO();
 
         dto.setId(book.getId());
         dto.setTitle(book.getTitle());
