@@ -1,4 +1,4 @@
-package org.ratmir.project.dto;
+package org.ratmir.project.dto.genre;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
