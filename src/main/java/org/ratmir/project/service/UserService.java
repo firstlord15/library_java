@@ -3,8 +3,13 @@ package org.ratmir.project.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ratmir.project.dto.user.CreateUserDTO;
+import org.ratmir.project.dto.user.UpdateUserDTO;
+import org.ratmir.project.dto.user.UserPublicDTO;
+import org.ratmir.project.enums.Role;
 import org.ratmir.project.exception.IllegalArgumentException;
 import org.ratmir.project.exception.ResourceNotFoundException;
+import org.ratmir.project.mapper.UserMapper;
 import org.ratmir.project.models.User;
 import org.ratmir.project.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,56 +22,72 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final UserMapper mapper;
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<User> getAllUsers() {
-        log.info("GET All Users");
-        return repository.findAll();
+    public List<UserPublicDTO> getAllUsers() {
+        log.debug("Fetching all users");
+        return repository.findAll()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
-    public User getUserById(UUID id) {
-        log.info("GET User by ID {}", id);
-        return repository.findById(id)
+    public UserPublicDTO getUserById(UUID id) {
+        log.debug("Fetching user by id: {}", id);
+        User user = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        return mapper.toDTO(user);
     }
 
-    public User getUserByUsername(String username) {
-        log.info("GET User by username {}", username);
-        return repository.findByUsername(username)
+    public UserPublicDTO getUserByUsername(String username) {
+        log.debug("Fetching user by username: {}", username);
+        User user = repository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+
+        return mapper.toDTO(user);
     }
 
-    public User getUserByEmail(String email) {
-        log.info("GET User by email {}", email);
-        return repository.findByEmail(email)
+    public UserPublicDTO getUserByEmail(String email) {
+        log.debug("Fetching user by email: {}", email);
+        User user = repository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-    }
 
-    @Transactional
-    public User createUser(User user) {
-        if (repository.findByUsername(user.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username already taken: " + user.getUsername());
-        }
-
-        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-        log.info("Create User {}", user.getUsername());
-        return repository.save(user);
+        return mapper.toDTO(user);
     }
 
     public void deleteUser(UUID id) {
-        log.info("Delete User {}", id);
+        log.debug("Deleting user by id: {}", id);
         repository.deleteById(id);
     }
 
     @Transactional
-    public User updateUser(UUID id, User user) {
-        User currentUser = getUserById(id);
-        currentUser.setEmail(user.getEmail());
-        currentUser.setPhone(user.getPhone());
+    public UserPublicDTO createUser(CreateUserDTO dto) {
+        if (repository.findByUsername(dto.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already taken: " + dto.getUsername());
+        }
 
-        log.info("Update User {}", user.getId());
-        return repository.save(currentUser);
+        User user = mapper.fromCreatedUser(dto);
+        user.setRole(Role.USER);
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+
+        User saved = repository.save(user);
+        log.debug("User saved with id: {}", saved.getId());
+        return mapper.toDTO(saved);
+    }
+
+    @Transactional
+    public UserPublicDTO updateUser(UUID id, UpdateUserDTO dto) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        mapper.updateFromDTO(dto, user);
+        User updated = repository.save(user);
+
+        log.debug("User updated with username: {}", updated.getUsername());
+        return mapper.toDTO(updated);
     }
 
     @Transactional
@@ -83,7 +104,7 @@ public class UserService {
         }
 
         currentUser.setPasswordHash(passwordEncoder.encode(newPassword));
-        log.info("Change Password {}", currentUser.getUsername());
         repository.save(currentUser);
+        log.debug("Password changed for user: {}", currentUser.getUsername());
     }
 }
