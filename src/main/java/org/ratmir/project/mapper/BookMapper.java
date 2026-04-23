@@ -54,12 +54,6 @@ public interface BookMapper {
         return dto;
     }
 
-    default List<BookPublicDTO>  toBookPublicDTOList(List<Book> books) {
-        return books.stream()
-                .map(this::toBookPublicDTO)
-                .toList();
-    }
-
     // Из DTO в Entity (при создании)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
