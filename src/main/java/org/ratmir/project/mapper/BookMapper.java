@@ -33,9 +33,8 @@ public interface BookMapper {
     }
 
     // Для админки/автора (со статусом модерации)
-    default BookDetailDTO toBookAuthorDTO(Book book) {
+    default BookDetailDTO toBookDetailDTO(Book book) {
         BookDetailDTO dto = new BookDetailDTO();
-
         dto.setId(book.getId());
         dto.setTitle(book.getTitle());
         dto.setDescription(book.getDescription());
