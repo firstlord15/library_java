@@ -4,15 +4,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.ratmir.project.dto.user.CreateUserDTO;
-import org.ratmir.project.dto.user.UpdateUserDTO;
-import org.ratmir.project.dto.user.UserDetailDTO;
-import org.ratmir.project.dto.user.UserPublicDTO;
+import org.ratmir.project.dto.user.*;
 import org.ratmir.project.models.User;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
     UserPublicDTO toDTO(User user);
+    UserProfileDTO toProfileDTO(User user);
     UserDetailDTO toDetailDTO(User user);
 
     @Mapping(target = "id", ignore = true)
