@@ -66,12 +66,8 @@ public class BookService {
         mapper.updateFromDTO(dto, book);
 
         // Обновляем связи
-        if (dto.getAuthorIds() != null) {
-            book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
-        }
-        if  (dto.getGenreIds() != null) {
-            book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
-        }
+        if (dto.getAuthorIds() != null) book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
+        if  (dto.getGenreIds() != null) book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
 
         book = repository.save(book);
         log.debug("Book updated with id: {}", id);
@@ -97,7 +93,6 @@ public class BookService {
     // Для админа/автора — все книги
     public List<BookDetailDTO> getAll() {
         log.debug("Fetching all books");
-
         return repository.findAll()
                 .stream()
                 .map(mapper::toBookDetailDTO)
@@ -108,7 +103,6 @@ public class BookService {
         log.debug("Fetching public book with id: {}", id);
         Book book = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
-
         return mapper.toBookPublicDTO(book);
     }
 
@@ -116,7 +110,6 @@ public class BookService {
         log.debug("Fetching detail book with id: {}", id);
         Book book = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
-
         return mapper.toBookDetailDTO(book);
     }
 
