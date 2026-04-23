@@ -8,7 +8,6 @@ import org.ratmir.project.dto.book.BookPublicDTO;
 import org.ratmir.project.dto.book.CreateBookDTO;
 import org.ratmir.project.dto.book.UpdateBookDTO;
 import org.ratmir.project.enums.ModerationStatus;
-import org.ratmir.project.enums.Role;
 import org.ratmir.project.exception.ResourceNotFoundException;
 import org.ratmir.project.mapper.BookMapper;
 import org.ratmir.project.models.Book;
@@ -16,8 +15,6 @@ import org.ratmir.project.models.User;
 import org.ratmir.project.repository.AuthorRepository;
 import org.ratmir.project.repository.BookRepository;
 import org.ratmir.project.repository.GenreRepository;
-import org.ratmir.project.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,29 +29,21 @@ public class BookService {
     private final GenreRepository genreRepository;
     private final BookRepository repository;
     private final BookMapper mapper;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public BookPublicDTO addBook(CreateBookDTO dto) {
+    public BookPublicDTO addBook(CreateBookDTO dto, User user) {
         Book book = mapper.fromCreateDTO(dto);
         book.setStatus(ModerationStatus.PENDING);   // всегда PENDING при создании
         book.setRating(0.0);
-        book.setOrigin(getCurrentUser());
+        book.setOrigin(user);
         book.setInventoryNumber(generateInventoryNumber());
-        book.setCreatedAt(LocalDateTime.now());
-        book.setUpdatedAt(LocalDateTime.now());
 
         // Устанавливаем связи
-        if (dto.getAuthorIds() != null) {
-            book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
-        }
-        if (dto.getGenreIds() != null) {
-            book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
-        }
+        if (dto.getAuthorIds() != null) book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
+        if (dto.getGenreIds() != null) book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
 
-        log.info("Add new Book: {}", book.getTitle());
         book = repository.save(book);
+        log.debug("Book saved with id: {}", book.getTitle());
 
         return mapper.toBookPublicDTO(book);
     }
@@ -65,9 +54,7 @@ public class BookService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
 
         if (dto.getIsbn() != null && !dto.getIsbn().equals(book.getIsbn())) {
-            log.warn("ISBN changed for book {}: {} -> {}",
-                    id, book.getIsbn(), dto.getIsbn());
-
+            log.warn("ISBN changed for book {}: {} -> {}", id, book.getIsbn(), dto.getIsbn());
             if (repository.existsByIsbn(dto.getIsbn())) {
                 throw new IllegalArgumentException(
                         "Book with this ISBN already exists"
@@ -86,21 +73,21 @@ public class BookService {
             book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
         }
 
-        log.info("UPDATE Book: {}", id);
         book = repository.save(book);
+        log.debug("Book updated with id: {}", id);
 
         return mapper.toBookPublicDTO(book);
     }
 
     @Transactional
     public void deleteBook(UUID id) {
-        log.info("DELETE Book: {}", id);
+        log.debug("Deleting book with id: {}", id);
         repository.deleteById(id);
     }
 
     // Публичный каталог — только одобренные книги
     public List<BookPublicDTO> getAllPublic() {
-        log.info("GET All approved Books");
+        log.debug("Fetching all approved books");
         return repository.findByStatus(ModerationStatus.APPROVED)
                 .stream()
                 .map(mapper::toBookPublicDTO)
@@ -109,55 +96,36 @@ public class BookService {
 
     // Для админа/автора — все книги
     public List<BookDetailDTO> getAll() {
-        log.info("GET All Books");
+        log.debug("Fetching all books");
 
         return repository.findAll()
                 .stream()
-                .map(mapper::toBookAuthorDTO)
+                .map(mapper::toBookDetailDTO)
                 .toList();
     }
 
     public BookPublicDTO getByIdPublic(UUID id) {
-        log.info("GET Public Book with id {}", id);
+        log.debug("Fetching public book with id: {}", id);
         Book book = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
 
         return mapper.toBookPublicDTO(book);
     }
 
-    public BookDetailDTO getByIdAuthor(UUID id) {
-        log.info("GET Author Book with id {}", id);
+    public BookDetailDTO getByIdDetail(UUID id) {
+        log.debug("Fetching detail book with id: {}", id);
         Book book = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
 
-        return mapper.toBookAuthorDTO(book);
+        return mapper.toBookDetailDTO(book);
     }
 
     public List<BookPublicDTO> getByTitle(String title) {
-        log.info("GET Book with title {}", title);
+        log.debug("Fetching book with title: {}", title);
         return repository.findByTitleContainingIgnoreCase(title)
                 .stream()
                 .map(mapper::toBookPublicDTO)
                 .toList();
-    }
-
-    private User getCurrentUser() {
-        // 🔧 ВРЕМЕННАЯ ЗАГЛУШКА для тестирования
-        // TODO: заменить на SecurityContextHolder.getContext().getAuthentication()
-        //       когда добавим JWT авторизацию
-
-        log.warn("Using test user stub - replace with real authentication!");
-
-        return userRepository.findByUsername("test_user")
-                .orElseGet(() -> {
-                    log.info("Creating test user for development");
-                    User testUser = new User();
-                    testUser.setUsername("test_user");
-                    testUser.setPasswordHash(passwordEncoder.encode("password"));
-                    testUser.setEmail("test@test.com");
-                    testUser.setRole(Role.USER);
-                    return userRepository.save(testUser);
-                });
     }
 
     private String generateInventoryNumber() {
