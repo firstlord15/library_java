@@ -1,6 +1,5 @@
 package org.ratmir.project.models;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,6 +34,13 @@ public class ModerationRecord {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
     public ModerationRecord(Book book, User moderator, ModerationStatus status, String comment, LocalDateTime createdAt) {
         this.id = UUID.randomUUID();
