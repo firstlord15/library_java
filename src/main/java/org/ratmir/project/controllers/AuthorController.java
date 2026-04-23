@@ -22,40 +22,35 @@ public class AuthorController {
 
     @GetMapping
     public ResponseEntity<List<AuthorDetailDTO>> getAllAuthors() {
+        log.info("GET /api/authors");
         List<AuthorDetailDTO> authors = service.getAll();
-
-        if (authors.isEmpty()) {
-            log.info("No authors found");
-            return ResponseEntity.noContent().build();
-        }
-
-        log.info("GET all authors");
+        if (authors.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(authors);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AuthorDetailDTO> getAuthorById(@PathVariable UUID id) {
-        log.info("GET author with id {}", id);
+        log.info("GET /api/authors/{}", id);
         return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
     public ResponseEntity<AuthorDetailDTO> createAuthor(@Valid @RequestBody CreateAuthorDTO createAuthorDTO) {
-        log.info("CREATE author {}", createAuthorDTO.getName());
+        log.info("POST /api/authors - name: {}", createAuthorDTO.getName());
         AuthorDetailDTO dto = service.createAuthor(createAuthorDTO);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AuthorDetailDTO> updateAuthor(@Valid @RequestBody UpdateAuthorDTO updateAuthorDTO, @PathVariable UUID id) {
-        log.info("UPDATE author {}", updateAuthorDTO.getName());
+        log.info("PUT /api/authors - name: {}", updateAuthorDTO.getName());
         AuthorDetailDTO dto = service.updateAuthor(id, updateAuthorDTO);
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuthorById(@PathVariable UUID id) {
-        log.info("DELETE author with id {}", id);
+        log.info("DELETE /api/authors/{}", id);
         service.deleteAuthor(id);
         return ResponseEntity.noContent().build();
     }

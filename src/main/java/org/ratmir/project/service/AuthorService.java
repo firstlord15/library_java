@@ -23,15 +23,14 @@ public class AuthorService {
     private final AuthorMapper mapper;
 
     public AuthorDetailDTO getById(UUID id) {
-        log.info("GET Author with id {}", id);
+        log.debug("Fetching author with id: {}", id);
         Author author = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
         return mapper.toDTO(author);
     }
 
     public List<AuthorDetailDTO> getAll() {
-        log.info("GET All Authors");
-
+        log.debug("Fetching all authors");
         return repository.findAll()
                 .stream()
                 .map(mapper::toDTO)
@@ -39,13 +38,13 @@ public class AuthorService {
     }
 
     public void deleteAuthor(UUID id) {
-        log.info("Delete Author {}", id);
+        log.debug("Deleting author with id: {}", id);
         repository.deleteById(id);
     }
 
     @Transactional
     public AuthorDetailDTO createAuthor(CreateAuthorDTO dto) {
-        log.info("Create Author {}", dto.getName());
+        log.debug("Author saved with name: {}", dto.getName());
         Author author = mapper.fromCreatedDTO(dto);
         Author saved = repository.save(author);
         return mapper.toDTO(saved);
@@ -56,7 +55,7 @@ public class AuthorService {
         Author author = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
 
-        log.info("Update Author {}", author.getName());
+        log.debug("Author updated with name: {}", author.getName());
         mapper.updateFromDTO(dto, author);
         Author updated = repository.save(author);
         return mapper.toDTO(updated);
