@@ -3,9 +3,7 @@ package org.ratmir.project.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ratmir.project.dto.user.CreateUserDTO;
-import org.ratmir.project.dto.user.UpdateUserDTO;
-import org.ratmir.project.dto.user.UserPublicDTO;
+import org.ratmir.project.dto.user.*;
 import org.ratmir.project.enums.Role;
 import org.ratmir.project.exception.IllegalArgumentException;
 import org.ratmir.project.exception.ResourceNotFoundException;
@@ -64,10 +62,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserPublicDTO createUser(CreateUserDTO dto) {
-        if (repository.findByUsername(dto.getUsername()).isPresent()) {
+    public UserProfileDTO createUser(CreateUserDTO dto) {
+        if (repository.findByUsername(dto.getUsername()).isPresent())
             throw new IllegalArgumentException("Username already taken: " + dto.getUsername());
-        }
 
         User user = mapper.fromCreatedUser(dto);
         user.setRole(Role.USER);
@@ -75,11 +72,11 @@ public class UserService {
 
         User saved = repository.save(user);
         log.debug("User saved with id: {}", saved.getId());
-        return mapper.toDTO(saved);
+        return mapper.toProfileDTO(saved);
     }
 
     @Transactional
-    public UserPublicDTO updateUser(UUID id, UpdateUserDTO dto) {
+    public UserProfileDTO updateUser(UUID id, UpdateUserDTO dto) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
@@ -87,7 +84,7 @@ public class UserService {
         User updated = repository.save(user);
 
         log.debug("User updated with username: {}", updated.getUsername());
-        return mapper.toDTO(updated);
+        return mapper.toProfileDTO(updated);
     }
 
     @Transactional
@@ -95,13 +92,11 @@ public class UserService {
         User currentUser = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        if (!passwordEncoder.matches(oldPassword, currentUser.getPasswordHash())) {
+        if (!passwordEncoder.matches(oldPassword, currentUser.getPasswordHash()))
             throw new IllegalArgumentException("Wrong old password");
-        }
 
-        if (oldPassword.equals(newPassword)) {
+        if (oldPassword.equals(newPassword))
             throw new IllegalArgumentException("New password must be different from the old one");
-        }
 
         currentUser.setPasswordHash(passwordEncoder.encode(newPassword));
         repository.save(currentUser);

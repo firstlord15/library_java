@@ -3,9 +3,7 @@ package org.ratmir.project.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ratmir.project.dto.user.CreateUserDTO;
-import org.ratmir.project.dto.user.UpdateUserDTO;
-import org.ratmir.project.dto.user.UserPublicDTO;
+import org.ratmir.project.dto.user.*;
 import org.ratmir.project.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,16 +50,16 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserPublicDTO> createUser(@RequestBody @Valid CreateUserDTO createUserDTO) {
+    public ResponseEntity<UserProfileDTO> createUser(@RequestBody @Valid CreateUserDTO createUserDTO) {
         log.info("POST /api/users - username: {}", createUserDTO.getUsername());
-        UserPublicDTO user = service.createUser(createUserDTO);
+        UserProfileDTO user = service.createUser(createUserDTO);
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserPublicDTO>  updateUser(@RequestBody @Valid UpdateUserDTO updateUserDTO, @PathVariable UUID id) {
+    public ResponseEntity<UserProfileDTO>  updateUser(@RequestBody @Valid UpdateUserDTO updateUserDTO, @PathVariable UUID id) {
         log.info("PUT /api/users/{}", id);
-        UserPublicDTO dto = service.updateUser(id, updateUserDTO);
+        UserProfileDTO dto = service.updateUser(id, updateUserDTO);
         return ResponseEntity.ok(dto);
     }
 
