@@ -40,7 +40,7 @@ public class ModerationService {
         return moderateBook(moderatorId, bookId, comment, ModerationStatus.REJECTED);
     }
 
-    public ModerationRecordDTO moderateBook(UUID moderatorId, UUID bookId, String comment, ModerationStatus status) {
+    private ModerationRecordDTO moderateBook(UUID moderatorId, UUID bookId, String comment, ModerationStatus status) {
         Book book = getBookOrThrow(bookId);
         User moderator = getModeratorOrThrow(moderatorId);
 
