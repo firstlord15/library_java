@@ -13,7 +13,7 @@ public interface GenreMapper {
     GenreDTO toDTO(Genre genre);
 
     @Mapping(target = "id", ignore = true)
-    Genre fromCreatedUser(CreateGenreDTO dto);
+    Genre fromCreateDTO(CreateGenreDTO dto);
 
     @Mapping(target = "id", ignore = true)
     void updateFromDTO(CreateGenreDTO dto, @MappingTarget Genre genre);

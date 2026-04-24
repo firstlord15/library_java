@@ -54,9 +54,9 @@ public class GenreService {
         if (repository.findByName(createGenreDTO.getName()).isPresent()) {
             throw new IllegalArgumentException("Genre already exists with name: " + createGenreDTO.getName());
         }
-        Genre genre = mapper.fromCreatedUser(createGenreDTO);
+        Genre genre = mapper.fromCreateDTO(createGenreDTO);
 
-        log.debug("User saved with name: {}", createGenreDTO.getName());
+        log.debug("Genre saved with name: {}", createGenreDTO.getName());
         Genre saved = repository.save(genre);
         return mapper.toDTO(saved);
     }
