@@ -7,6 +7,5 @@ public record AuthorDetailDTO(
         String name,
         String surname,
         String patronymic,
-        String bio,
-        int booksCount
+        String bio
 ) {}
