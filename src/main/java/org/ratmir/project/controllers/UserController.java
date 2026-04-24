@@ -3,7 +3,10 @@ package org.ratmir.project.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ratmir.project.dto.user.*;
+import org.ratmir.project.dto.user.CreateUserDTO;
+import org.ratmir.project.dto.user.UpdateUserDTO;
+import org.ratmir.project.dto.user.UserProfileDTO;
+import org.ratmir.project.dto.user.UserPublicDTO;
 import org.ratmir.project.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +25,7 @@ public class UserController {
     public ResponseEntity<List<UserPublicDTO>> getAllUsers() {
         log.info("GET /api/users");
         List<UserPublicDTO> users = service.getAllUsers();
-        if (users.isEmpty()) return ResponseEntity.notFound().build();
+        if (users.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(users);
     }
 

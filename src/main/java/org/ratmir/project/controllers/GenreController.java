@@ -23,7 +23,7 @@ public class GenreController {
     public ResponseEntity<List<GenreDTO>> getAllGenres() {
         log.info("GET /api/genres");
         List<GenreDTO> genres = service.getAllGenres();
-        if (genres.isEmpty()) return ResponseEntity.notFound().build();
+        if (genres.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(genres);
     }
 
