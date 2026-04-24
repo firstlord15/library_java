@@ -36,7 +36,7 @@ public class ModerationController {
     }
 
     @GetMapping("/book/{bookId}/last")
-    public ResponseEntity<BookDetailDTO> getHistoryByBookIdLast(@PathVariable UUID bookId) {
+    public ResponseEntity<ModerationRecordDTO> getHistoryByBookIdLast(@PathVariable UUID bookId) {
         log.info("GET /api/moderation/book/{}/last", bookId);
         return ResponseEntity.ok(service.getLastRecordByBook(bookId));
     }
