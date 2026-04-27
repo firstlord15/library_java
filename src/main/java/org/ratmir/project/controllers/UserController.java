@@ -8,6 +8,7 @@ import org.ratmir.project.dto.user.UpdateUserDTO;
 import org.ratmir.project.dto.user.UserProfileDTO;
 import org.ratmir.project.dto.user.UserPublicDTO;
 import org.ratmir.project.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,8 +56,8 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserProfileDTO> createUser(@RequestBody @Valid CreateUserDTO createUserDTO) {
         log.info("POST /api/users - username: {}", createUserDTO.getUsername());
-        UserProfileDTO user = service.createUser(createUserDTO);
-        return ResponseEntity.ok(user);
+        UserProfileDTO dto = service.createUser(createUserDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @PutMapping("/{id}")

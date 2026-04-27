@@ -7,6 +7,7 @@ import org.ratmir.project.dto.author.AuthorDetailDTO;
 import org.ratmir.project.dto.author.CreateAuthorDTO;
 import org.ratmir.project.dto.author.UpdateAuthorDTO;
 import org.ratmir.project.service.AuthorService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,7 @@ public class AuthorController {
     public ResponseEntity<AuthorDetailDTO> createAuthor(@Valid @RequestBody CreateAuthorDTO createAuthorDTO) {
         log.info("POST /api/authors - name: {}", createAuthorDTO.getName());
         AuthorDetailDTO dto = service.createAuthor(createAuthorDTO);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @PutMapping("/{id}")

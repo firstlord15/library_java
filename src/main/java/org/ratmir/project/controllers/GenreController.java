@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ratmir.project.dto.genre.CreateGenreDTO;
 import org.ratmir.project.dto.genre.GenreDTO;
 import org.ratmir.project.service.GenreService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class GenreController {
     public ResponseEntity<GenreDTO> createGenre(@RequestBody @Valid CreateGenreDTO createGenreDTO) {
         log.info("POST /api/genres - name: {}", createGenreDTO.getName());
         GenreDTO dto = service.createGenre(createGenreDTO);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @PutMapping("/{id}")
