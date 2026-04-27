@@ -10,7 +10,9 @@ import org.ratmir.project.dto.book.UpdateBookDTO;
 import org.ratmir.project.enums.ModerationStatus;
 import org.ratmir.project.exception.ResourceNotFoundException;
 import org.ratmir.project.mapper.BookMapper;
+import org.ratmir.project.models.Author;
 import org.ratmir.project.models.Book;
+import org.ratmir.project.models.Genre;
 import org.ratmir.project.models.User;
 import org.ratmir.project.repository.AuthorRepository;
 import org.ratmir.project.repository.BookRepository;
@@ -38,13 +40,23 @@ public class BookService {
         book.setOrigin(user);
         book.setInventoryNumber(generateInventoryNumber());
 
+        // Используя proxy (getReferenceById) проверяем наличие самих объектов
+        List<Author> authors = dto.getAuthorIds()
+                .stream().distinct()
+                .map(authorRepository::getReferenceById)
+                .toList();
+
+        List<Genre> genres = dto.getGenreIds()
+                .stream().distinct()
+                .map(genreRepository::getReferenceById)
+                .toList();
+
         // Устанавливаем связи
-        if (dto.getAuthorIds() != null) book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
-        if (dto.getGenreIds() != null) book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
+        book.setAuthors(authors);
+        book.setGenres(genres);
 
         book = repository.save(book);
         log.debug("Book saved with id: {}", book.getTitle());
-
         return mapper.toBookPublicDTO(book);
     }
 
@@ -66,12 +78,24 @@ public class BookService {
         mapper.updateFromDTO(dto, book);
 
         // Обновляем связи
-        if (dto.getAuthorIds() != null) book.setAuthors(authorRepository.findAllById(dto.getAuthorIds()));
-        if  (dto.getGenreIds() != null) book.setGenres(genreRepository.findAllById(dto.getGenreIds()));
+        if (dto.getAuthorIds() != null) {
+            List<Author> authors = dto.getAuthorIds().stream()
+                    .distinct()                                    // убираем дубликаты из запроса
+                    .map(authorRepository::getReferenceById)       // proxy без запроса в БД
+                    .toList();
+            book.setAuthors(authors);
+        }
+
+        if (dto.getGenreIds() != null) {
+            List<Genre> genres = dto.getGenreIds().stream()
+                    .distinct()                                    // убираем дубликаты из запроса
+                    .map(genreRepository::getReferenceById)        // proxy без запроса в БД
+                    .toList();
+            book.setGenres(genres);
+        }
 
         book = repository.save(book);
         log.debug("Book updated with id: {}", id);
-
         return mapper.toBookPublicDTO(book);
     }
 
