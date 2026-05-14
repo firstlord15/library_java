@@ -32,22 +32,4 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-
-    public User(String username, String passwordHash, String email, String phone, Role role) {
-        this.id = UUID.randomUUID();
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.email = email;
-        this.phone = phone;
-        this.role = role;
-    }
-
-    public User(UUID id, String username, String passwordHash, String email, String phone, Role role) {
-        this.id = id;
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.email = email;
-        this.phone = phone;
-        this.role = role;
-    }
 }

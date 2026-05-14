@@ -41,22 +41,4 @@ public class ModerationRecord {
             createdAt = LocalDateTime.now();
         }
     }
-
-    public ModerationRecord(Book book, User moderator, ModerationStatus status, String comment, LocalDateTime createdAt) {
-        this.id = UUID.randomUUID();
-        this.book = book;
-        this.moderator = moderator;
-        this.status = status;
-        this.comment = comment;
-        this.createdAt = createdAt;
-    }
-
-    public ModerationRecord(UUID id, Book book, User moderator, ModerationStatus status, String comment, LocalDateTime createdAt) {
-        this.id = id;
-        this.book = book;
-        this.moderator = moderator;
-        this.status = status;
-        this.comment = comment;
-        this.createdAt = createdAt;
-    }
 }
