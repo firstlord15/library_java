@@ -28,8 +28,7 @@ public interface BookMapper {
                 book.getPhotoUrl(),
                 toGenreDTOList(book.getGenres()),
                 toAuthorDTOList(book.getAuthors()),
-                book.getPublishingDate()
-        );
+                book.getPublishingDate());
     }
 
     // Для админки/автора (со статусом модерации)
@@ -61,6 +60,9 @@ public interface BookMapper {
     @Mapping(target = "authors", ignore = true)
     @Mapping(target = "genres", ignore = true)
     @Mapping(target = "origin", ignore = true)
+    @Mapping(target = "inventoryNumber", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Book fromCreateDTO(CreateBookDTO dto);
 
     // Обновление Book
@@ -70,18 +72,23 @@ public interface BookMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "rating", ignore = true)
     @Mapping(target = "origin", ignore = true)
+    @Mapping(target = "inventoryNumber", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void updateFromDTO(UpdateBookDTO dto, @MappingTarget Book book);
 
     // Вспомогательные методы
     private List<GenreDTO> toGenreDTOList(List<Genre> genres) {
-        return genres == null ? List.of() : genres.stream()
-                .map(g -> new GenreDTO(g.getId(), g.getName()))
-                .toList();
+        return genres == null ? List.of()
+                : genres.stream()
+                        .map(g -> new GenreDTO(g.getId(), g.getName()))
+                        .toList();
     }
 
     private List<AuthorShortDTO> toAuthorDTOList(List<Author> authors) {
-        return authors == null ? List.of() : authors.stream()
-                .map(a -> new AuthorShortDTO(a.getId(), a.getName(), a.getSurname()))
-                .toList();
+        return authors == null ? List.of()
+                : authors.stream()
+                        .map(a -> new AuthorShortDTO(a.getId(), a.getName(), a.getSurname()))
+                        .toList();
     }
 }
