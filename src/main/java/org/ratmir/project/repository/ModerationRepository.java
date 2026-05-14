@@ -1,6 +1,5 @@
 package org.ratmir.project.repository;
 
-import org.ratmir.project.enums.ModerationStatus;
 import org.ratmir.project.models.ModerationRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
