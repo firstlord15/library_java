@@ -60,7 +60,7 @@ public class BookController {
     public ResponseEntity<BookPublicDTO> createBook(@Valid @RequestBody CreateBookDTO createBookDTO) {
         log.info("POST /api/books - title: {}", createBookDTO.getTitle());
         BookPublicDTO dto = bookService.addBook(createBookDTO, authService.getCurrentUser());
-        return  ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @PutMapping("/{id}")
