@@ -27,6 +27,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class BookService {
+    private final IsbnValidationService isbnValidationService;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final BookRepository repository;
@@ -34,8 +35,10 @@ public class BookService {
 
     @Transactional
     public BookPublicDTO addBook(CreateBookDTO dto, User user) {
+        isbnValidationService.validateIsbn(dto.getIsbn()); // Проверка Isbn книги
+
         Book book = mapper.fromCreateDTO(dto);
-        book.setStatus(ModerationStatus.PENDING);   // всегда PENDING при создании
+        book.setStatus(ModerationStatus.PENDING); // всегда PENDING при создании
         book.setRating(0.0);
         book.setOrigin(user);
         book.setInventoryNumber(generateInventoryNumber());
@@ -65,12 +68,12 @@ public class BookService {
         Book book = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found: " + id));
 
+        isbnValidationService.validateIsbn(dto.getIsbn()); // Проверка Isbn книги
+
         if (dto.getIsbn() != null && !dto.getIsbn().equals(book.getIsbn())) {
             log.warn("ISBN changed for book {}: {} -> {}", id, book.getIsbn(), dto.getIsbn());
             if (repository.existsByIsbn(dto.getIsbn())) {
-                throw new IllegalArgumentException(
-                        "Book with this ISBN already exists"
-                );
+                throw new IllegalArgumentException("Book with this ISBN already exists");
             }
         }
 
@@ -80,16 +83,16 @@ public class BookService {
         // Обновляем связи
         if (dto.getAuthorIds() != null) {
             List<Author> authors = dto.getAuthorIds().stream()
-                    .distinct()                                    // убираем дубликаты из запроса
-                    .map(authorRepository::getReferenceById)       // proxy без запроса в БД
+                    .distinct() // убираем дубликаты из запроса
+                    .map(authorRepository::getReferenceById) // proxy без запроса в БД
                     .toList();
             book.setAuthors(authors);
         }
 
         if (dto.getGenreIds() != null) {
             List<Genre> genres = dto.getGenreIds().stream()
-                    .distinct()                                    // убираем дубликаты из запроса
-                    .map(genreRepository::getReferenceById)        // proxy без запроса в БД
+                    .distinct() // убираем дубликаты из запроса
+                    .map(genreRepository::getReferenceById) // proxy без запроса в БД
                     .toList();
             book.setGenres(genres);
         }
